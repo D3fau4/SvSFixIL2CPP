@@ -27,13 +27,9 @@ jobs:
     - name: Publish
       run: dotnet publish -c Release --output publish_output
 
-  create_release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: actions/create-release@v1.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -43,7 +39,7 @@ jobs:
         prerelease: true  # Set this to 'true' for pre-releases, 'false' for full releases
 
     - name: Upload DLL
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: SvSFix
         path: publish_output/SvSFix.dll

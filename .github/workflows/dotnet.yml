@@ -28,7 +28,6 @@ jobs:
       run: dotnet publish -c Release --output publish_output
 
     - name: Create Release
-      id: create_release
       uses: actions/create-release@v1.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

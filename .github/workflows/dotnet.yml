@@ -1,0 +1,59 @@
+# This workflow will build and create a release in GitHub
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Build Mod
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Publish
+      run: dotnet publish -c Release --output publish_output
+
+  create_release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: vpre  # Set the desired tag name for the release
+        release_name: Prerelease  # Set the desired release name
+        draft: false
+        prerelease: true  # Set this to 'true' for pre-releases, 'false' for full releases
+
+    - name: Upload DLL
+      uses: actions/upload-artifact@v2
+      with:
+        name: SvSFix
+        path: publish_output/SvSFix.dll
+
+    - name: Attach DLL to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Automatically references the created release
+        asset_path: publish_output/SvSFix.dll
+        asset_name: SvSFix.dll 
+        asset_content_type: application/x-msdownload

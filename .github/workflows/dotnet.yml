@@ -28,27 +28,23 @@ jobs:
       run: dotnet publish -c Release --output publish_output
 
     - name: Create Release
+      id: create_release
       uses: actions/create-release@v1.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: vpre  # Set the desired tag name for the release
-        release_name: Prerelease  # Set the desired release name
+        tag_name: vPre
+        release_name: Prerelease
         draft: false
-        prerelease: true  # Set this to 'true' for pre-releases, 'false' for full releases
+        prerelease: true
 
-    - name: Upload DLL
-      uses: actions/upload-artifact@v3
-      with:
-        name: SvSFix
-        path: publish_output/SvSFix.dll
-
-    - name: Attach DLL to Release
-      uses: actions/upload-release-asset@v1
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1.0.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Automatically references the created release
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: publish_output/SvSFix.dll
         asset_name: SvSFix.dll 
         asset_content_type: application/x-msdownload
